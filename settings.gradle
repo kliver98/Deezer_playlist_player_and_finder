@@ -1,0 +1,2 @@
+rootProject.name='RetoDeezer'
+include ':app'
