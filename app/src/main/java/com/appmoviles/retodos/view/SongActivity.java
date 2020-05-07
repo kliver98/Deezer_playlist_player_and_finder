@@ -47,7 +47,7 @@ public class SongActivity extends AppCompatActivity implements View.OnClickListe
         backArrowIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openListActivity();
+                onBackPressed();
             }
         });
 
@@ -71,18 +71,21 @@ public class SongActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void openListActivity() {
-        Intent i = new Intent(this,ListActivity.class);
-        this.startActivity(i);
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mediaPlayer.stop();
         this.finish();
     }
 
     @Override
     public void onClick(View v) {
         if (mediaPlayer.isPlaying()) {
+            listenBTN.setCompoundDrawablesWithIntrinsicBounds(0,0,0,R.drawable.ic_play_arrow);
             mediaPlayer.pause();
             return;
         }
+        listenBTN.setCompoundDrawablesWithIntrinsicBounds(0,0,0,R.drawable.ic_pause);
         mediaPlayer.start();
         new Thread(
                 () -> {

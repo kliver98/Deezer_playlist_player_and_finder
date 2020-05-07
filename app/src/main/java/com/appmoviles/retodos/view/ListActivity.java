@@ -71,18 +71,12 @@ public class ListActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         backArrowIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openMainActivity();
+                onBackPressed();
             }
         });
         listIV = findViewById(R.id.listIV);
         listNameTV = findViewById(R.id.listNameTV);
         extraTV = findViewById(R.id.extraTV);
-    }
-
-    private void openMainActivity() {
-        Intent i = new Intent(this,MainActivity.class);
-        this.startActivity(i);
-        this.finish();
     }
 
     private void buildRecycleView() {
@@ -137,6 +131,12 @@ public class ListActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
+    }
+
     private void openSongActivity() {
         Intent i = new Intent(this,SongActivity.class);
         com.appmoviles.retodos.model.playlist.Data track = deezer.getTracks().getData()[positionClicked];
@@ -147,7 +147,6 @@ public class ListActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         i.putExtra("duration",convertTime(track.getDuration()));
         i.putExtra("preview",track.getPreview());
         this.startActivity(i);
-        this.finish();
     }
 
 }

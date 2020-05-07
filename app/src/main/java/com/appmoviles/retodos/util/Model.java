@@ -1,5 +1,7 @@
 package com.appmoviles.retodos.util;
 
+import android.util.Log;
+
 import com.appmoviles.retodos.model.search.Data;
 import com.appmoviles.retodos.model.search.Deezer;
 import com.google.gson.Gson;
@@ -79,18 +81,22 @@ public class Model implements HTTPSWebUtilDomi.OnResponseListener {
             albums.put(a.getTitle(), created);
             aux.put(created.getName(),0);
         }
-        Thread aT = new Thread(
+        return albums;
+    }
+
+    public HashMap<String, Album> chargeNTracks() {
+        Thread t = new Thread(
                 () -> {
                     for (String k: albums.keySet()) {
-                        String url = "https://api.deezer.com/album/"+albums.get(k).getId();
-                        utilDomi.GETrequest(1,url);
+                        String url = "https://api.deezer.com/album/" + albums.get(k).getId();
+                        utilDomi.GETrequest(-1, url);
                     }
                 }
         );
-        aT.start();
+        t.start();
         try {
-            aT.join();
-        } catch (InterruptedException e) {
+            t.join();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         for(String k: albums.keySet()) {

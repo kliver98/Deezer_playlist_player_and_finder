@@ -32,7 +32,8 @@
             android:layout_marginTop="14dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="14dp"
-            android:hint="Buscar una lista de reproducción" />
+            android:hint="Buscar una lista de reproducción"
+            android:inputType="text"/>
 
     </RelativeLayout>
 
@@ -52,7 +53,7 @@
         android:layout_height="match_parent"
         android:layout_margin="50dp"
         android:gravity="center"
-        android:text="Tiene un tiempo de busqueda de 2-8 segundos por favor sea paciente. Carga de 3 Album - Creada por Kliver"
+        android:text="Tiene un tiempo de busqueda de alrededor 4 segundos, por favor sea paciente. Carga máximo 12 Album - Creada por Kliver"
         android:textSize="24sp"
         android:textStyle="bold" />
 

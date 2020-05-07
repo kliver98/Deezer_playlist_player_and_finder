@@ -8,15 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.appmoviles.retodos.R;
-import com.appmoviles.retodos.model.search.Data;
 import com.appmoviles.retodos.model.search.Deezer;
 import com.appmoviles.retodos.model.SearchItem;
 import com.appmoviles.retodos.model.SearchItemAdapter;
@@ -26,7 +23,6 @@ import com.appmoviles.retodos.util.HTTPSWebUtilDomi;
 import com.appmoviles.retodos.util.Model;
 import com.google.gson.Gson;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
     private RecyclerView.LayoutManager layoutManager;
 
     private int positionClicked;
-    private Deezer deezerSearch;
+    private Deezer deezer;
     private ArrayList<SearchItem> items;
     private EditText searchBarET;
     private ImageView searchImgIV;
@@ -52,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         setContentView(R.layout.activity_main);
 
         items = new ArrayList<SearchItem>();
-        modelUtil = new Model(deezerSearch);
+        modelUtil = new Model(deezer);
         buildRecycleView();
 
         utilDomi = new HTTPSWebUtilDomi();
@@ -62,8 +58,10 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
             @Override
             public void onClick(View view) {
                 if (view != null) {
+                    //Hide the keyboard
                     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                     listSearch();
                 }
             }
@@ -74,11 +72,11 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
 
     @Override
     public void onResponse(int callbackID, String response) {
-        deezerSearch = null;
+        deezer = null;
         switch(callbackID) {
             case Constants.SEARCH_CALLBACK:
                 Gson gson =  new Gson();
-                deezerSearch = gson.fromJson(response, Deezer.class);
+                deezer = gson.fromJson(response, Deezer.class);
                 break;
         }
     }
@@ -87,9 +85,10 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         String text = searchBarET.getText().toString().trim();
         if (text.isEmpty() || text.length()<3)
             return;
+        //Debido a que se demora en cargar y buscar numero de postas, primero se carga listas encontradas y luego se ponen nb_tracks
         Thread t = new Thread(
                 () -> {
-                    utilDomi.GETrequest(Constants.SEARCH_CALLBACK,searchBaseUrl+"\""+text+"\"&limit=3");
+                    utilDomi.GETrequest(Constants.SEARCH_CALLBACK,searchBaseUrl+"\""+text+"\"&limit=12");
                 }
         );
         t.start();
@@ -98,16 +97,24 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        updateRecyclerView();
+        updateRecyclerView(true);
+        //Se ponene nb_tracks cada playlist encontrada
+        updateRecyclerView(false);
     }
 
-    private void updateRecyclerView() {
+    private void updateRecyclerView(boolean firstTime) {
         adapter.delete();
-        modelUtil.setDeezer(deezerSearch);
-        HashMap<String, Album> abs = modelUtil.getAlbums();
+        modelUtil.setDeezer(deezer);
+        HashMap<String,Album> albums = null;
+        if (firstTime)
+            albums = modelUtil.getAlbums();
+        else
+            albums = modelUtil.chargeNTracks();
+        HashMap<String, Album> abs = albums;
         for(String key: abs.keySet()) {
-            Album a = modelUtil.getAlbums().get(key);
+            Album a = abs.get(key);
             items.add(new SearchItem(a.getCover(),a.getName(),a.getUserCreator(),a.getnItems()+""));
+            Log.e("<<<N_ITEMS>>>>",a.getnItems()+":");
         }
         adapter.notifyDataSetChanged();
     }
@@ -139,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements HTTPSWebUtilDomi.
         Intent i = new Intent(this,ListActivity.class);
         i.putExtra("url", getUrl());
         this.startActivity(i);
-        this.finish();
     }
 
     public Model getModelUtil() {
