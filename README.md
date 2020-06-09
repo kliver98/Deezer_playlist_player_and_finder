@@ -1,4 +1,4 @@
 # Deezer API Implementation in Android Studio
-Aplicación móvil para android que permite buscar playlist y canciones por el api de Deezer.
-Hecha para electiva profesional de carrera Ingeniría de sistemas, universidad ICESI.
-Por Kliver Daniel Girón Castro
+This application its functional and was mainly to practice the implementation of the API that deezer gives
+
+By Kliver Daniel Girón Castro
